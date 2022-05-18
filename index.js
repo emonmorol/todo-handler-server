@@ -8,7 +8,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@todo-handler.shloa.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
@@ -16,6 +16,7 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
+
 async function run() {
   try {
     await client.connect();
@@ -24,6 +25,18 @@ async function run() {
     app.post("/todoList", async (req, res) => {
       const todoDoc = req.body;
       const result = await todoCollection.insertOne(todoDoc);
+      res.send(result);
+    });
+
+    app.get("/todoList", async (req, res) => {
+      const todos = await todoCollection.find({}).toArray();
+      res.send(todos);
+    });
+
+    app.delete("/todoList/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await todoCollection.deleteOne(query);
       res.send(result);
     });
   } finally {
