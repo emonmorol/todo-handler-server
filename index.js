@@ -39,6 +39,19 @@ async function run() {
       const result = await todoCollection.deleteOne(query);
       res.send(result);
     });
+
+    app.patch("/todoList/:id", async (req, res) => {
+      const id = req.params.id;
+      const complete = req.body.completed;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          isComplete: complete,
+        },
+      };
+      const result = await todoCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
   } finally {
     // await client.close();
   }
